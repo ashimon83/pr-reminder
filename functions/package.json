@@ -1,0 +1,31 @@
+{
+  "name": "pr-reminder",
+  "description": "Pull Requests reminder with firebase functions",
+  "scripts": {
+    "lint": "eslint .",
+    "serve": "firebase serve --only functions",
+    "shell": "firebase functions:shell",
+    "start": "npm run shell",
+    "deploy": "firebase deploy --only functions",
+    "logs": "firebase functions:log"
+  },
+  "dependencies": {
+    "@slack/client": "^4.6.0",
+    "apollo-cache-inmemory": "^1.2.8",
+    "apollo-client": "^2.4.0",
+    "apollo-fetch": "^0.7.0",
+    "apollo-link": "^1.2.2",
+    "apollo-link-http": "^1.5.4",
+    "date-fns": "^1.29.0",
+    "firebase-admin": "~6.0.0",
+    "firebase-functions": "^2.0.5",
+    "graphql": "^0.13.2",
+    "graphql-tag": "^2.9.2",
+    "node-fetch": "^2.2.0"
+  },
+  "devDependencies": {
+    "eslint": "^4.12.0",
+    "eslint-plugin-promise": "^3.6.0"
+  },
+  "private": true
+}
