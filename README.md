@@ -10,7 +10,7 @@
   - get Webhook URL
 
 ### firebase
-- make project and set up and...
+- make project and set up and firebase login and firebase init and etc....
 - read this! https://firebase.google.com/docs/functions/get-started?hl=ja
 
 ### cd functions directory
