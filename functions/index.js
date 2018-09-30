@@ -1,8 +1,13 @@
+const admin = require('firebase-admin')
 const functions = require('firebase-functions')
 const gql = require('graphql-tag')
 const { IncomingWebhook } = require('@slack/client')
 const webhook = new IncomingWebhook(functions.config().slack.url)
-const {format} = require('date-fns')
+const {formatResultStr} = require('./helpers/formatResultStr')
+
+admin.initializeApp(functions.config().firebase)
+const db = admin.firestore()
+db.settings({timestampsInSnapshots: true})
 
 const {key, owner, name} = functions.config().githubapi
 const { ApolloClient } = require('apollo-client')
@@ -61,25 +66,9 @@ exports.prReminder = functions.https.onRequest((request, response) => {
       
       `
     })
-    .then(data => {
-      const pullRequests = data.data.repository.pullRequests.edges
-      const attachedPullRequests = pullRequests.filter(pr => {
-        const {reviewRequests} = pr.node
-        return reviewRequests.nodes.length > 0
-      })
-      const headStr = `:octocat: ${attachedPullRequests.length} waiting pull requests in ${owner}/${name} repository
-      :eyes: Don't miss it! https://github.com/${owner}/${name}/pulls
-`
-      const resultStr = attachedPullRequests.reduce((acc, pr) => {
-        const {author, createdAt, reviewRequests, title, url} = pr.node
-        const dateStr = format(createdAt, 'YYYY/MM/DD')
-        const reviewStr = reviewRequests.nodes.map((node) => `${node.requestedReviewer.login}`).join(' & ')
-        const str = `:pray: *${author.login}* requests review ${title} to *${reviewStr}* until ${dateStr} ${url}`
-        return `${acc}
-${str}
-        `
-      }, '')
-      return webhook.send(`${headStr}${resultStr}`, (err, res) => {
+    .then(async data => {
+      const sendStr = await formatResultStr(data, db, owner, name)
+      return webhook.send(sendStr, (err, res) => {
         if (err) {
           response.send(err)
         } else {
