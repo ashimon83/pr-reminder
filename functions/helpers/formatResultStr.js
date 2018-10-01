@@ -17,7 +17,7 @@ exports.formatResultStr = async (data, db, owner, name) => {
     const reviewStrResults = await Promise.all(reviewRequests.nodes.map(async (node) => {
       const githubName = node.requestedReviewer.login
       const userNameDoc = await usersCollection.doc(githubName).get()
-      const slackName = userNameDoc.exists ? `@${userNameDoc.data().slack}` : ''
+      const slackName = userNameDoc.exists ? `<@${userNameDoc.data().slack}>` : ''
       return `${slackName || githubName}`
     }))
     
