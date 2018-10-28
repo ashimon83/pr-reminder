@@ -12,6 +12,11 @@ exports.formatResultStr = async (data, db, owner, name) => {
       [member.name]: member.id
     })
   ), {})
+  const emailMap = members.reduce((acc, member) => (
+    Object.assign(acc, {
+      [member.profile.email]: member.id
+    })
+  ), {})
   const usersCollection = db.collection('users')
   const pullRequests = data.data.repository.pullRequests.edges
   const targetRepositoryName = `${owner}/${name}`
@@ -27,9 +32,11 @@ exports.formatResultStr = async (data, db, owner, name) => {
     const dateStr = format(createdAt, 'YYYY/MM/DD')
     const reviewStrResults = await Promise.all(reviewRequests.nodes.map(async (node) => {
       const githubName = node.requestedReviewer.login
+      const githubEmail = node.requestedReviewer.email
+      const mentionNameByEmail = (githubEmail && emailMap[githubEmail] && `<@${emailMap[githubEmail]}>`) || ''
       const userNameDoc = await usersCollection.doc(githubName).get()
-      const slackName = userNameDoc.exists ? `<@${nameMap[userNameDoc.data().slack]}>` : ''
-      return `${slackName || githubName}`
+      const mentionNameByFireStoreMap = userNameDoc.exists && `<@${nameMap[userNameDoc.data().slack]}>`
+      return `${mentionNameByEmail || mentionNameByFireStoreMap || githubName}`
     }))
 
     const reviewStr = reviewStrResults.map(name => name).join(' & ')

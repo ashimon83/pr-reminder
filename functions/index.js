@@ -53,7 +53,8 @@ exports.prReminder = functions.https.onRequest((request, response) => {
                     requestedReviewer {
                       ... on User {
                         login
-                        name
+                        name,
+                        email
                       }
                     }
                   }
