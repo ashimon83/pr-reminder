@@ -25,7 +25,7 @@ $ cd functions
 
 ### Setting github api key and slack hook url
 ```sh
-$ firebase functions:config:set githubapi.key="GITHUB_PERSONAL_ACCESS_TOKEN" githubapi.owner="OWNER_NAME" githubapi.name="REPOSITORY_NAME" slack.url="WEBHOOK_URL"
+$ firebase functions:config:set githubapi.key="GITHUB_PERSONAL_ACCESS_TOKEN" githubapi.owner="OWNER_NAME" githubapi.name="REPOSITORY_NAME" slack.url="WEBHOOK_URL" slack.token="SLACK_AUTH_TOKEN"
 ```
 
 ### local test

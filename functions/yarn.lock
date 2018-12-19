@@ -1415,7 +1415,7 @@ finity@^0.5.4:
   version "0.5.4"
   resolved "https://registry.yarnpkg.com/finity/-/finity-0.5.4.tgz#f2a8a9198e8286467328ec32c8bfcc19a2229c11"
 
-firebase-admin@~6.0.0:
+firebase-admin@^6.0.0:
   version "6.0.0"
   resolved "https://registry.yarnpkg.com/firebase-admin/-/firebase-admin-6.0.0.tgz#6a4be9e38b523ad7b4397b9b35853e4412e135ae"
   dependencies:
