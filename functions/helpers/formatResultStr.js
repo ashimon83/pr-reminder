@@ -30,21 +30,38 @@ exports.formatResultStr = async (data, db, owner, name) => {
   const resultStr = await attachedPullRequests.reduce(async (acc, pr) => {
     const {author, createdAt, reviewRequests, title, url} = pr.node
     const dateStr = format(createdAt, 'YYYY/MM/DD')
-    const reviewStrResults = await Promise.all(reviewRequests.nodes.map(async (node) => {
+    const reviewerNameList = await Promise.all(reviewRequests.nodes.map(async (node) => {
       const githubName = node.requestedReviewer.login
       const githubEmail = node.requestedReviewer.email
       const mentionNameByEmail = (githubEmail && emailMap[githubEmail] && `<@${emailMap[githubEmail]}>`) || ''
       const userNameDoc = await usersCollection.doc(githubName).get()
-      const mentionNameByFireStoreMap = userNameDoc.exists && `<@${nameMap[userNameDoc.data().slack]}>`
+      const mentionNameByFireStoreMap = userNameDoc.exists && userNameDoc.data().slack && `<@${nameMap[userNameDoc.data().slack]}>`
       return `${mentionNameByEmail || mentionNameByFireStoreMap || githubName}`
     }))
 
-    const reviewStr = reviewStrResults.map(name => name).join(' & ')
-    const str = `:pray: *${author.login}* requests review ${title} to *${reviewStr}* until ${dateStr} ${url}`
+    const reviewersNameStr = reviewerNameList.map(name => name).join(' & ')
+    const str = `:pray: *${author.login}* requests review ${title} to *${reviewersNameStr}* until ${dateStr} ${url}`
     const accSync = await acc
-    return `${accSync}
+    const prReviewText = `${accSync.text}
 ${str}
     `
-  }, '')
-  return `${headStr}${resultStr}`
+    const reviewerInfo = reviewerNameList.reduce((reviewer, name) => {
+      const isExist = reviewer[name] > 0
+      return {
+        ...reviewer,
+        [name]: isExist ? (reviewer[name] + 1) : 1
+      }
+    }, accSync.reviewer)
+    console.log(reviewerInfo, 'reviewerInfo')
+    return {
+      text: prReviewText,
+      reviewer: reviewerInfo
+    }
+  }, {text: '', reviewer: {}})
+  const rankingArray = Object.keys(resultStr.reviewer).map((name) => ({name: name, count: resultStr.reviewer[name]})).sort((a, b) => a.count < b.count)
+  const rankingStr = rankingArray.reduce((acc, cur, index) => {
+    return `${acc}
+    No. ${index + 1}  ${cur.name} keep ${[...Array(cur.count)].map((_, index) => ':pizza:').join('')} requests!`
+  }, '*Top :pizza: holders*')
+  return `${headStr}${resultStr.text}${rankingStr}`
 }
