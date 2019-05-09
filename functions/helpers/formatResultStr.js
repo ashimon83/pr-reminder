@@ -24,9 +24,10 @@ exports.formatResultStr = async (data, db, owner, name) => {
     const {reviewRequests} = pr.node
     return reviewRequests.nodes.length > 0
   })
-  const headStr = `:octocat: ${attachedPullRequests.length} waiting pull requests in ${targetRepositoryName} repository
+  const pullRequestsCount = attachedPullRequests.length
+  const headStr = pullRequestsCount > 0 ? `:octocat: ${pullRequestsCount} waiting pull requests in ${targetRepositoryName} repository
   :eyes: Don't miss it! https://github.com/${targetRepositoryName}/pulls
-`
+` : 'NO :pizza: ! :mouse:'
   const resultStr = await attachedPullRequests.reduce(async (acc, pr) => {
     const {author, createdAt, reviewRequests, title, url} = pr.node
     const dateStr = format(createdAt, 'YYYY/MM/DD')
@@ -52,13 +53,12 @@ ${str}
         [name]: isExist ? (reviewer[name] + 1) : 1
       }
     }, accSync.reviewer)
-    console.log(reviewerInfo, 'reviewerInfo')
     return {
       text: prReviewText,
       reviewer: reviewerInfo
     }
   }, {text: '', reviewer: {}})
-  const rankingArray = Object.keys(resultStr.reviewer).map((name) => ({name: name, count: resultStr.reviewer[name]})).sort((a, b) => a.count < b.count)
+  const rankingArray = Object.keys(resultStr.reviewer).map((name) => ({name: name, count: resultStr.reviewer[name]})).sort((a, b) => b.count - a.count)
   const rankingStr = rankingArray.reduce((acc, cur, index) => {
     return `${acc}
     No. ${index + 1}  ${cur.name} keep ${[...Array(cur.count)].map((_, index) => ':pizza:').join('')} requests!`
