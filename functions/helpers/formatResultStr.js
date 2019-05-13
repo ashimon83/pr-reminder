@@ -27,7 +27,7 @@ exports.formatResultStr = async (data, db, owner, name) => {
   const pullRequestsCount = attachedPullRequests.length
   const headStr = pullRequestsCount > 0 ? `:octocat: ${pullRequestsCount} waiting pull requests in ${targetRepositoryName} repository
   :eyes: Don't miss it! https://github.com/${targetRepositoryName}/pulls
-` : 'NO :pizza: ! :mouse:'
+` : 'NO :pizza:  :mouse:'
   const resultStr = await attachedPullRequests.reduce(async (acc, pr) => {
     const {author, createdAt, reviewRequests, title, url} = pr.node
     const dateStr = format(createdAt, 'YYYY/MM/DD')
@@ -63,5 +63,5 @@ ${str}
     return `${acc}
     No. ${index + 1}  ${cur.name} keep ${[...Array(cur.count)].map((_, index) => ':pizza:').join('')} requests!`
   }, '*Top :pizza: holders*')
-  return `${headStr}${resultStr.text}${rankingStr}`
+  return `${headStr}${resultStr.text}${pullRequestsCount > 0 ? rankingStr : ''}`
 }
